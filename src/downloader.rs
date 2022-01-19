@@ -64,20 +64,20 @@ impl Downloader {
 		input: &str,
 	) -> Result<Option<Vec<SearchResult>>, SpotifyError> {
 		if let Ok(uri) = Spotify::parse_uri(input) {
-				if let Err(e) = self.add_uri(&uri).await {
-							return Err(e);
-						}
-				Ok(None)
-			} else {
-				let results: Vec<SearchResult> = self
-					.spotify
-					.search(input)
-					.await?
-					.into_iter()
-					.map(SearchResult::from)
-					.collect();
-				Ok(Some(results))
+			if let Err(e) = self.add_uri(&uri).await {
+				return Err(e);
 			}
+			Ok(None)
+		} else {
+			let results: Vec<SearchResult> = self
+				.spotify
+				.search(input)
+				.await?
+				.into_iter()
+				.map(SearchResult::from)
+				.collect();
+			Ok(Some(results))
+		}
 	}
 
 	/// Add URL or URI to queue
@@ -373,6 +373,7 @@ impl DownloaderInternal {
 			job.id,
 		)
 		.await?;
+
 		// Post processing
 		self.event_tx
 			.send(Message::UpdateState(job.id, DownloadState::Post))
@@ -472,7 +473,7 @@ impl DownloaderInternal {
 		Ok(())
 	}
 
-	async fn find_alternative(session: &Session, track : Track) -> Result<Track, SpotifyError> {
+	async fn find_alternative(session: &Session, track: Track) -> Result<Track, SpotifyError> {
 		for alt in track.alternatives {
 			let t = Track::get(&session, alt).await?;
 			if t.available {
@@ -531,8 +532,12 @@ impl DownloaderInternal {
 			}
 		);
 		let path = Path::new(&path).to_owned();
-		let path_clone = path.clone();
+		if !config.overwrite && path.exists() {
+			// track already downloaded
+			return Err(SpotifyError::AlreadyDownloaded);
+		}
 
+		let path_clone = path.clone();
 		let key = session.audio_key().request(track.id, *file_id).await?;
 		let encrypted = AudioFile::open(session, *file_id, 1024 * 1024, true).await?;
 		let size = encrypted.get_stream_loader_controller().len();
@@ -861,6 +866,7 @@ pub struct DownloaderConfig {
 	pub id3v24: bool,
 	pub convert_to_mp3: bool,
 	pub separator: String,
+	pub overwrite: bool,
 }
 
 impl DownloaderConfig {
@@ -874,6 +880,7 @@ impl DownloaderConfig {
 			id3v24: true,
 			convert_to_mp3: false,
 			separator: ", ".to_string(),
+			overwrite: false,
 		}
 	}
 }

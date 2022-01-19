@@ -1,4 +1,7 @@
-use aspotify::{Album, Artist, Client, ClientCredentials, ItemType, Playlist, PlaylistItemType, Track, TrackSimplified};
+use aspotify::{
+	Album, Artist, Client, ClientCredentials, ItemType, Playlist, PlaylistItemType, Track,
+	TrackSimplified,
+};
 use librespot::core::authentication::Credentials;
 use librespot::core::config::SessionConfig;
 use librespot::core::session::Session;
@@ -89,14 +92,14 @@ impl Spotify {
 	/// Get search results for query
 	pub async fn search(&self, query: &str) -> Result<Vec<Track>, SpotifyError> {
 		Ok(self
-		.spotify
-		.search()
-		.search(query, [ItemType::Track], true, 50, 0, None)
-		.await?
-		.data
-		.tracks
-		.unwrap()
-		.items)
+			.spotify
+			.search()
+			.search(query, [ItemType::Track], true, 50, 0, None)
+			.await?
+			.data
+			.tracks
+			.unwrap()
+			.items)
 	}
 
 	/// Get all tracks from playlist

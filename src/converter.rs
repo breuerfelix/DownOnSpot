@@ -3,7 +3,7 @@ use std::io::{Error, ErrorKind, Read, Seek};
 
 use crate::downloader::{AudioFormat, Quality};
 use crate::error::SpotifyError;
-use crate::error::SpotifyError::{LameConverterError, InvalidFormat};
+use crate::error::SpotifyError::{InvalidFormat, LameConverterError};
 
 /// Converts audio to MP3
 pub enum AudioConverter {
@@ -35,16 +35,16 @@ impl AudioConverter {
 
 		match lame.set_channels(2) {
 			Ok(_) => {}
-			Err(_) => return Err(LameConverterError("Channels".to_string()))
+			Err(_) => return Err(LameConverterError("Channels".to_string())),
 		};
 
-		match lame.set_quality(0)  {
+		match lame.set_quality(0) {
 			Ok(_) => {}
-			Err(_) => return Err(LameConverterError("Quality".to_string()))
+			Err(_) => return Err(LameConverterError("Quality".to_string())),
 		};
-		match lame.set_kilobitrate(bitrate)  {
+		match lame.set_kilobitrate(bitrate) {
 			Ok(_) => {}
-			Err(_) => return Err(LameConverterError("Bitrate".to_string()))
+			Err(_) => return Err(LameConverterError("Bitrate".to_string())),
 		};
 
 		match format {
@@ -55,13 +55,13 @@ impl AudioConverter {
 				let decoder = OggStreamReader::new(ReadWrap::new(Box::new(read)))?;
 				let sample_rate = decoder.ident_hdr.audio_sample_rate;
 				// Init lame
-				match lame.set_sample_rate(sample_rate)  {
+				match lame.set_sample_rate(sample_rate) {
 					Ok(_) => {}
-					Err(_) => return Err(LameConverterError("Sample rate".to_string()))
+					Err(_) => return Err(LameConverterError("Sample rate".to_string())),
 				};
-				match lame.init_params()  {
+				match lame.init_params() {
 					Ok(_) => {}
-					Err(_) => return Err(LameConverterError("Init".to_string()))
+					Err(_) => return Err(LameConverterError("Init".to_string())),
 				};
 
 				Ok(AudioConverter::Ogg {

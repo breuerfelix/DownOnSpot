@@ -18,12 +18,12 @@ build = "build.rs"
 winres = "0.1"
 
 [dependencies]
-clap = "2.33"
+clap = { version = "3.0.10", features = ["cargo"] }
 log = "0.4"
+dirs = "4.0.0"
 url = "2.2"
 protobuf = "2.25.0"
 id3 = "0.6"
-dirs = "3.0"
 chrono = "0.4"
 lewton = "0.10"
 futures = "0.3"
@@ -31,7 +31,8 @@ reqwest = "0.11"
 colored = "2"
 lame = "0.1.3"
 aspotify = "0.7"
-librespot = { git = "ssh://git@github.com/oSumAtrIX/free-librespot.git", branch = "dev" }
+#librespot = { git = "ssh://git@github.com/oSumAtrIX/free-librespot.git", branch = "dev" }
+librespot = "0.3.1"
 async-std = { version = "1.10", features = ["attributes", "tokio1"] }
 serde_json = "1.0"
 async-stream = "0.3"
