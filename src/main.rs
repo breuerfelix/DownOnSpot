@@ -37,15 +37,12 @@ async fn main() {
 
 async fn start() {
 	let matches = app_from_crate!()
-		.arg(arg!(-s --settings <PATH> "Path of the settings file").required(false))
 		.arg(arg!(-p --path <PATH> "Path to save the downloaded files to").required(false))
 		.arg(arg!(-f --overwrite "Overwrites already downloaded files").required(false))
 		.arg(arg!([URL]... "(track_url | album_url | playlist_url | artist_url)").required(true))
 		.get_matches();
 
-	let settings_path = matches.value_of("settings").unwrap_or("");
-
-	let mut settings = match Settings::load(settings_path).await {
+	let mut settings = match Settings::load().await {
 		Ok(settings) => {
 			println!(
 				"{} {}.",

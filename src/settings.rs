@@ -1,8 +1,6 @@
 use crate::downloader::DownloaderConfig;
 use crate::error::SpotifyError;
-use dirs::home_dir;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 
 use tokio::{
 	fs::create_dir_all,
