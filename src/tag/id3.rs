@@ -1,6 +1,6 @@
 use chrono::{Datelike, NaiveDate};
 use id3::frame::{Picture, PictureType, Timestamp};
-use id3::{Tag, Version};
+use id3::{Tag, Version, TagLike};
 use std::path::{Path, PathBuf};
 
 use crate::error::SpotifyError;
@@ -64,7 +64,7 @@ impl super::Tag for ID3Tag {
 	}
 
 	fn add_cover(&mut self, mime: &str, data: Vec<u8>) {
-		self.tag.add_picture(Picture {
+		self.tag.add_frame(Picture {
 			mime_type: mime.to_owned(),
 			picture_type: PictureType::CoverFront,
 			description: "cover".to_string(),
@@ -73,7 +73,7 @@ impl super::Tag for ID3Tag {
 	}
 
 	fn set_release_date(&mut self, date: NaiveDate) {
-		self.tag.set_date_recorded(Timestamp {
+		self.tag.set_date_released(Timestamp {
 			year: date.year(),
 			month: Some(date.month() as u8),
 			day: Some(date.day() as u8),

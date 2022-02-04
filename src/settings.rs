@@ -5,8 +5,14 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 use tokio::{
+	fs::create_dir_all,
 	fs::File,
 	io::{AsyncReadExt, AsyncWriteExt},
+};
+
+use std::{
+	env,
+	path::{Path, PathBuf},
 };
 
 // Structure for holding all the settings
@@ -18,6 +24,22 @@ pub struct Settings {
 	pub client_secret: String,
 	pub refresh_ui_seconds: u64,
 	pub downloader: DownloaderConfig,
+}
+
+// On UNIX systems (eg. Linux, *BSD, even macOS), follow the
+// XDG Base Directory Specification for storing config files
+#[cfg(target_family = "unix")]
+fn get_config_folder_path() -> PathBuf {
+	match env::var("XDG_CONFIG_HOME") {
+		Ok(v) => Path::new(&v).join("down_on_spot").to_path_buf(),
+		Err(_) => Path::new(&env::var("HOME").unwrap()).join(".config/down_on_spot"),
+	}
+}
+
+// On Windows, follow whatever windows does for AppData
+#[cfg(target_family = "windows")]
+fn get_config_folder_path() -> PathBuf {
+	Path::new(&env::var("APPDATA").unwrap()).join("down_on_spot")
 }
 
 impl Settings {
@@ -33,35 +55,28 @@ impl Settings {
 		}
 	}
 
-	// Serialize the settings to a json file
+	// Save config
 	pub async fn save(&self) -> Result<(), SpotifyError> {
+		// Get and create config folder path, generate config file path
+		let config_folder_path = get_config_folder_path();
+		create_dir_all(&config_folder_path).await?;
+		let config_file_path = config_folder_path.join("settings.json");
+
+		// Serialize the settings to a json file
 		let data = serde_json::to_string_pretty(self)?;
-		let mut file = File::create(Path::new("settings.json")).await?;
+		let mut file = File::create(config_file_path).await?;
 		file.write_all(data.as_bytes()).await?;
 		Ok(())
 	}
 
-	// Deserialize the settings from a json file
-	pub async fn load(raw_path: &str) -> Result<Settings, SpotifyError> {
-		// default locations
-		let settings_paths: [&Path; 2] = [
-			Path::new("settings.json"),
-			&home_dir().unwrap().join(".config/downonspot.json"),
-		];
+	// Load config
+	pub async fn load() -> Result<Settings, SpotifyError> {
+		// Get config folder path, generate config file path
+		let config_folder_path = get_config_folder_path();
+		let config_file_path = config_folder_path.join("settings.json");
 
-		let mut path = Path::new(raw_path);
-		if raw_path == "" {
-			for p in settings_paths {
-				if !p.exists() {
-					continue;
-				}
-
-				path = p;
-				break;
-			}
-		}
-
-		let mut file = File::open(path).await?;
+		// Deserialize the settings from a json file
+		let mut file = File::open(config_file_path).await?;
 		let mut buf = String::new();
 		file.read_to_string(&mut buf).await?;
 		Ok(serde_json::from_str(&buf)?)

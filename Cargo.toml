@@ -1,5 +1,3 @@
-cargo-features = ["strip"]
-
 [profile.release]
 strip = true
 opt-level = "z"
@@ -9,7 +7,7 @@ panic = "abort"
 
 [package]
 name = "down_on_spot"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2018"
 authors = ["exttex", "oSumAtrIX"]
 build = "build.rs"
@@ -22,14 +20,15 @@ clap = { version = "3.0.10", features = ["cargo"] }
 log = "0.4"
 dirs = "4.0.0"
 url = "2.2"
-protobuf = "2.25.0"
-id3 = "0.6"
+protobuf = "2.25"
+id3 = "1.0"
+dirs = "4.0"
 chrono = "0.4"
 lewton = "0.10"
 futures = "0.3"
 reqwest = "0.11"
 colored = "2"
-lame = "0.1.3"
+lame = "0.1"
 aspotify = "0.7"
 #librespot = { git = "ssh://git@github.com/oSumAtrIX/free-librespot.git", branch = "dev" }
 librespot = "0.3.1"
@@ -45,4 +44,4 @@ tokio = { version = "1.12", features = ["fs"] }
 OriginalFilename = "DownOnSpot.exe"
 FileDescription = "Download songs from Spotify with Rust"
 ProductName = "DownOnSpot"
-ProductVersion = "0.1.2"
+ProductVersion = "0.2.0"
